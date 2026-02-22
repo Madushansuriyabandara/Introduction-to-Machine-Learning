@@ -1,0 +1,16 @@
+ID,Age,Income,Education,City,target
+1,25,50000,Bachelors,Colombo,1
+2,,30000,High_School,Kandy,0
+3,45,120000,Masters,Galle,1
+4,32,60000,Bachelors,Colombo,1
+5,22,20000,High_School,Colombo,0
+6,38,,Bachelors,Kandy,1
+7,50,90000,Masters,Colombo,1
+8,28,45000,Bachelors,Galle,0
+9,40,85000,,Kandy,1
+10,35,70000,Bachelors,Colombo,1
+11,27,48000,Bachelors,Colombo,0
+12,55,105000,Masters,Kandy,1
+13,23,22000,High_School,Galle,0
+14,34,62000,Bachelors,Colombo,1
+15,48,,Masters,Galle,1
