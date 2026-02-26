@@ -5,7 +5,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import f1_score, accuracy_score
 import warnings
@@ -48,13 +48,13 @@ def main():
 
     pipeline = Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('classifier', SVC(random_state=42))
+        ('classifier', RandomForestClassifier(random_state=42))
     ])
 
     param_grid = {
-        'classifier__C': [0.1, 1, 10, 100],
-        'classifier__gamma': ['scale', 'auto', 1, 0.1, 0.01, 0.001],
-        'classifier__kernel': ['rbf', 'poly', 'sigmoid']
+        'classifier__n_estimators': [50, 100, 200],
+        'classifier__max_depth': [None, 10, 20, 30],
+        'classifier__min_samples_split': [2, 5, 10]
     }
 
     # Use GridSearchCV for exhaustive checking
@@ -64,8 +64,12 @@ def main():
     search.fit(X_train, y_train)
 
     best_model = search.best_estimator_
+    print(f"Best CV Accuracy: {search.best_score_:.4f}")
+    print(f"Best Parameters: {search.best_params_}")
 
     val_predictions = best_model.predict(X_val)
+    print(f"Validation Accuracy: {accuracy_score(y_val, val_predictions):.4f}")
+    print(f"Validation F1 Score: {f1_score(y_val, val_predictions):.4f}")
 
     # Retrain best pipeline on full data
     best_model.fit(X_full, y_full)
