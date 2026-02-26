@@ -4,9 +4,9 @@ import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import StandardScaler, OrdinalEncoder
+from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import f1_score, accuracy_score
 import warnings
 
@@ -42,24 +42,24 @@ def main():
             ]), numeric_features),
             ('cat', Pipeline(steps=[
                 ('imputer', SimpleImputer(strategy='most_frequent')),
-                ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
+                ('ordinal', OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1))
             ]), categorical_features)
         ])
 
     pipeline = Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('classifier', RandomForestClassifier(random_state=42))
+        ('classifier', HistGradientBoostingClassifier(random_state=42))
     ])
 
-    param_grid = {
-        'classifier__n_estimators': [50, 100, 200],
-        'classifier__max_depth': [None, 10, 20, 30],
-        'classifier__min_samples_split': [2, 5, 10]
+    param_distributions = {
+        'classifier__max_iter': [100, 200, 300],
+        'classifier__max_depth': [None, 10, 20],
+        'classifier__learning_rate': [0.01, 0.1, 0.2]
     }
 
-    # Use GridSearchCV for exhaustive checking
-    search = GridSearchCV(pipeline, param_grid=param_grid, 
-                          cv=5, scoring='accuracy', n_jobs=-1)
+    # Use RandomizedSearchCV for faster tuning
+    search = RandomizedSearchCV(pipeline, param_distributions=param_distributions, 
+                                n_iter=10, cv=5, scoring='accuracy', random_state=42, n_jobs=-1)
     
     search.fit(X_train, y_train)
 
@@ -69,7 +69,13 @@ def main():
 
     val_predictions = best_model.predict(X_val)
     print(f"Validation Accuracy: {accuracy_score(y_val, val_predictions):.4f}")
-    print(f"Validation F1 Score: {f1_score(y_val, val_predictions):.4f}")
+    if y_val.dtype == 'object':
+        try:
+            print(f"Validation F1 Score: {f1_score(y_val, val_predictions, pos_label='Presence'):.4f}")
+        except ValueError:
+            print(f"Validation F1 Score (weighted): {f1_score(y_val, val_predictions, average='weighted'):.4f}")
+    else:
+        print(f"Validation F1 Score: {f1_score(y_val, val_predictions):.4f}")
 
     # Retrain best pipeline on full data
     best_model.fit(X_full, y_full)
