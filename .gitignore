@@ -1,0 +1,11 @@
+# Huge Datasets
+*.csv
+*.xlsx
+
+# LaTeX buildup files
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
