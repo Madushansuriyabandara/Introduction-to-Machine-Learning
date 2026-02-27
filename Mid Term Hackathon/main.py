@@ -1,4 +1,3 @@
-import argparse
 import pandas as pd
 import numpy as np
 from sklearn.pipeline import Pipeline
@@ -14,20 +13,18 @@ def main():
     # Ignore warnings
     warnings.filterwarnings('ignore')
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('train_path', type=str)
-    parser.add_argument('test_path', type=str)
-    parser.add_argument('--target', type=str, default='target')
-    args = parser.parse_args()
+    train_path = 'DiabetesTrain.csv'
+    test_path = 'DiabetesTest.csv'
+    target = 'Outcome'
 
-    train_df = pd.read_csv(args.train_path)
-    test_df = pd.read_csv(args.test_path)
+    train_df = pd.read_csv(train_path)
+    test_df = pd.read_csv(test_path)
 
     if 'ID' in train_df.columns:
         train_df = train_df.drop(columns=['ID'])
 
-    X_full = train_df.drop(columns=[args.target])
-    y_full = train_df[args.target]
+    X_full = train_df.drop(columns=[target])
+    y_full = train_df[target]
 
     X_train, X_val, y_train, y_val = train_test_split(X_full, y_full, test_size=0.2, random_state=42, stratify=y_full)
 
