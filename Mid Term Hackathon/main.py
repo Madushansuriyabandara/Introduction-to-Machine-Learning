@@ -6,7 +6,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OrdinalEncoder
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import classification_report
 import warnings
 
 def main():
@@ -65,14 +65,8 @@ def main():
     print(f"Best Parameters: {search.best_params_}")
 
     val_predictions = best_model.predict(X_val)
-    print(f"Validation Accuracy: {accuracy_score(y_val, val_predictions):.4f}")
-    if y_val.dtype == 'object':
-        try:
-            print(f"Validation F1 Score: {f1_score(y_val, val_predictions, pos_label='Presence'):.4f}")
-        except ValueError:
-            print(f"Validation F1 Score (weighted): {f1_score(y_val, val_predictions, average='weighted'):.4f}")
-    else:
-        print(f"Validation F1 Score: {f1_score(y_val, val_predictions):.4f}")
+    print("\nClassification Report:")
+    print(classification_report(y_val, val_predictions))
 
     # Retrain best pipeline on full data
     best_model.fit(X_full, y_full)
